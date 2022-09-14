@@ -56,9 +56,29 @@ func Task5() {
 	}
 }
 
+func Task6() {
+	d := Dot{X: 2, Y: 4}
+	t := Triangle{A: Dot{X: 0, Y: 0}, B: Dot{X: 5, Y: 4}, C: Dot{X: 1, Y: 7}}
+	pos := DotAndTriangle(d, t)
+
+	var sPos string
+	switch pos {
+	case Inside:
+		sPos = "inside"
+	case OnBorder:
+		sPos = "on border of"
+	case Outside:
+		sPos = "outside"
+	}
+
+	fmt.Printf("Dot %v is %s triangle %v\n", d, sPos, t)
+}
+
 func main() {
 	Task1()
 	Task2()
 	Task3()
 	Task4()
+	Task5()
+	Task6()
 }

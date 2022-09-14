@@ -169,3 +169,60 @@ func SegmentsIntersection(s1, s2 Segment) bool {
 	// dot must be on segments
 	return CheckDotOnSegment(d, s1) && CheckDotOnSegment(d, s2)
 }
+
+// signed area of triangle
+func SignedDoubleTriangleArea(a, b, c Dot) float64 {
+	return (b.X-a.X)*(c.Y-a.Y) - (b.Y-a.Y)*(c.X-a.X)
+}
+
+// it will work right if with integers...
+
+// func IsClockwise(a, b, c Dot) bool {
+// 	return TriangleArea(a, b, c) < 0
+// }
+
+//          B
+//        |
+//       |
+//      |
+//     |
+//    |
+//   |____________ A
+//
+// if triangle area > 0, than angle from A to B (counterclockwise), else from B to A (clockwise)
+//
+
+type Position int
+
+const (
+	Inside Position = iota
+	OnBorder
+	Outside
+)
+
+type Triangle struct {
+	A Dot
+	B Dot
+	C Dot
+}
+
+func DotAndTriangle(d Dot, t Triangle) Position {
+	ss := []Segment{{t.A, t.B}, {t.B, t.C}, {t.C, t.A}}
+	wasOnBorder := false
+
+	for _, s := range ss {
+		sdta := SignedDoubleTriangleArea(d, s.A, s.B)
+		switch {
+		case math.Abs(sdta) < EPS:
+			wasOnBorder = true
+			continue
+		case sdta < 0:
+			return Outside
+		}
+	}
+	
+	if wasOnBorder {
+		return OnBorder
+	}
+	return Inside
+}

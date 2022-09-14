@@ -292,3 +292,43 @@ func TestSegmentsIntersection(t *testing.T) {
 		})
 	}
 }
+
+func TestDotAndTriangle(t *testing.T) {
+	type args struct {
+		d Dot
+		t Triangle
+	}
+	tests := []struct {
+		name string
+		args args
+		want Position
+	}{
+		{
+			name: "simple inside",
+			args: args{Dot{2, 4}, Triangle{Dot{0, 0}, Dot{5, 4}, Dot{1, 7}}},
+			want: Inside,
+		},
+		{
+			name: "on border",
+			args: args{Dot{3, 5.5}, Triangle{Dot{0, 0}, Dot{5, 4}, Dot{1, 7}}},
+			want: OnBorder,
+		},
+		{
+			name: "on corner",
+			args: args{Dot{5, 4}, Triangle{Dot{0, 0}, Dot{5, 4}, Dot{1, 7}}},
+			want: OnBorder,
+		},
+		{
+			name: "outside",
+			args: args{Dot{4, 0}, Triangle{Dot{0, 0}, Dot{5, 4}, Dot{1, 7}}},
+			want: Outside,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := DotAndTriangle(tt.args.d, tt.args.t)
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
