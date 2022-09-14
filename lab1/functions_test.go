@@ -231,7 +231,62 @@ func TestLineSegmentItersection(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := LineSegmentItersection(tt.args.l, tt.args.s)
+			got := LineSegmentIntersection(tt.args.l, tt.args.s)
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestSegmentsIntersection(t *testing.T) {
+	type args struct {
+		s1 Segment
+		s2 Segment
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "simple intersection",
+			args: args{Segment{Dot{0, 0}, Dot{4, 3}}, Segment{Dot{3, -1}, Dot{2, 4}}},
+			want: true,
+		},
+		{
+			name: "not intersects",
+			args: args{Segment{Dot{0, 0}, Dot{5, 0}}, Segment{Dot{0, 4}, Dot{10, 20}}},
+			want: false,
+		},
+		{
+			name: "intersection on border of one segments",
+			args: args{Segment{Dot{0, 0}, Dot{4, 3}}, Segment{Dot{3, 5}, Dot{5, 1}}},
+			want: true,
+		},
+		{
+			name: "intersection on both borders",
+			args: args{Segment{Dot{0, 0}, Dot{4, 3}}, Segment{Dot{4, 3}, Dot{3, -2}}},
+			want: true,
+		},
+		{
+			name: "parallel segments",
+			args: args{Segment{Dot{0, 0}, Dot{4, 3}}, Segment{Dot{-1, 2}, Dot{3, 5}}},
+			want: false,
+		},
+		{
+			name: "equal segments",
+			args: args{Segment{Dot{0, 0}, Dot{4, 3}}, Segment{Dot{0, 0}, Dot{4, 3}}},
+			want: true,
+		},
+		{
+			name: "on segment on the end of another",
+			args: args{Segment{Dot{0, 0}, Dot{4, 3}}, Segment{Dot{2, 1.5}, Dot{6, 4.5}}},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := SegmentsIntersection(tt.args.s1, tt.args.s2)
 
 			assert.Equal(t, tt.want, got)
 		})

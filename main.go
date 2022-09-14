@@ -37,11 +37,22 @@ func Task3() {
 func Task4() {
 	l := *FromSegment(Segment{A: Dot{X: 2, Y: 2}, B: Dot{X: 3, Y: 5}})
 	s := Segment{A: Dot{X: 0, Y: 0}, B: Dot{X: 4, Y: 3}}
-	isInter := LineSegmentItersection(l, s)
+	isInter := LineSegmentIntersection(l, s)
 	if isInter {
 		fmt.Printf("Line %v intersects with segment %v\n", l, s)
 	} else {
 		fmt.Printf("Line %v NOT intersects with segment %v\n", l, s)
+	}
+}
+
+func Task5() {
+	s1 := Segment{A: Dot{X: 0, Y: 0}, B: Dot{X: 4, Y: 3}}
+	s2 := Segment{A: Dot{X: 3, Y: -1}, B: Dot{X: 2, Y: 4}}
+	isInter := SegmentsIntersection(s1, s2)
+	if isInter {
+		fmt.Printf("Segment %v intersects with segment %v\n", s1, s2)
+	} else {
+		fmt.Printf("Segment %v NOT intersects with segment %v\n", s1, s2)
 	}
 }
 

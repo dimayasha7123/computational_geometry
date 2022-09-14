@@ -111,6 +111,10 @@ func FromSegment(s Segment) *Line {
 	}
 }
 
+func (l *Line) Distanse(d Dot) float64 {
+	return (math.Abs(l.A*d.X + l.B*d.Y + l.C)) / (math.Sqrt(d.X*d.X + d.Y*d.Y))
+}
+
 // determinant of this
 // | a b |
 // | c d |
@@ -124,7 +128,7 @@ func IsParallel(l1, l2 Line) bool {
 }
 
 // check intersection of line with segment
-func LineSegmentItersection(l Line, s Segment) bool {
+func LineSegmentIntersection(l Line, s Segment) bool {
 	// l and s must be not parallel
 	l1 := l
 	l2 := *FromSegment(s)
@@ -141,4 +145,27 @@ func LineSegmentItersection(l Line, s Segment) bool {
 
 	// dot must be on segment
 	return CheckDotOnSegment(d, s)
+}
+
+// check intersection of two segments
+func SegmentsIntersection(s1, s2 Segment) bool {
+	l1 := *FromSegment(s1)
+	l2 := *FromSegment(s2)
+
+	// check if parallel
+	if IsParallel(l1, l2) {
+		// check, if equal or laying on one line and intersects
+		return !(math.Abs(l1.Distanse(s2.A)) > EPS || math.Abs(l2.Distanse(s1.A)) > EPS)
+	}
+	// if not parallel
+
+	// find intersection dot
+	u := det(l1.A, l1.B, l2.A, l2.B)
+	d := Dot{
+		X: -det(l1.C, l1.B, l2.C, l2.B) / u,
+		Y: -det(l1.A, l1.C, l2.A, l2.C) / u,
+	}
+
+	// dot must be on segments
+	return CheckDotOnSegment(d, s1) && CheckDotOnSegment(d, s2)
 }
