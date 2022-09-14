@@ -100,6 +100,18 @@ func TestCheckDotOnSegment(t *testing.T) {
 			seg:  Segment{A: Dot{X: 2, Y: 3}, B: Dot{X: 7, Y: 5}},
 			want: true,
 		},
+		{
+			name: "on border",
+			a:    Dot{X: 7, Y: 5},
+			seg:  Segment{Dot{2, 3}, Dot{7, 5}},
+			want: true,
+		},
+		{
+			name: "on border 2",
+			a:    Dot{X: 4, Y: 3},
+			seg:  Segment{Dot{0, 0}, Dot{4, 3}},
+			want: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -180,6 +192,46 @@ func TestNormOnSegment(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := NormOnSegment(tt.args.A, tt.args.Seg)
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestLineSegmentItersection(t *testing.T) {
+	type args struct {
+		l Line
+		s Segment
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "simple intersection",
+			args: args{*FromSegment(Segment{Dot{2, 2}, Dot{3, 5}}), Segment{Dot{0, 0}, Dot{4, 3}}},
+			want: true,
+		},
+		{
+			name: "intersection dot outside",
+			args: args{*FromSegment(Segment{Dot{3, 5}, Dot{8, 4}}), Segment{Dot{0, 0}, Dot{4, 3}}},
+			want: false,
+		},
+		{
+			name: "intersection dot on border",
+			args: args{*FromSegment(Segment{Dot{5, 1}, Dot{3, 5}}), Segment{Dot{0, 0}, Dot{4, 3}}},
+			want: true,
+		},
+		{
+			name: "parallel",
+			args: args{*FromSegment(Segment{Dot{-1, 2}, Dot{3, 5}}), Segment{Dot{0, 0}, Dot{4, 3}}},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := LineSegmentItersection(tt.args.l, tt.args.s)
 
 			assert.Equal(t, tt.want, got)
 		})

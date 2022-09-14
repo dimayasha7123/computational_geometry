@@ -19,12 +19,12 @@ type Segment struct {
 	B Dot
 }
 
-func LengthBetweenDots(A, B Dot) float64 {
-	return math.Sqrt(math.Pow(A.X-B.X, 2) + math.Pow(A.Y-B.Y, 2))
+func LengthbetweenDots(a, b Dot) float64 {
+	return math.Sqrt(math.Pow(a.X-b.X, 2) + math.Pow(a.Y-b.Y, 2))
 }
 
 func (s *Segment) Length() float64 {
-	return LengthBetweenDots(s.A, s.B)
+	return LengthbetweenDots(s.A, s.B)
 }
 
 func RadToDegree(angle float64) float64 {
@@ -47,45 +47,98 @@ func OXAngle(dot Dot) float64 {
 }
 
 // for task 1
-func WhatAngleWithOxMore(A, B Dot) string {
-	aAngle := OXAngle(A)
-	bAngle := OXAngle(B)
+func WhatAngleWithOxMore(a, b Dot) string {
+	aAngle := OXAngle(a)
+	bAngle := OXAngle(b)
 	switch {
 	case aAngle > bAngle:
-		return fmt.Sprintf("A angle (%f) is bigger than B angle (%f)", aAngle, bAngle)
+		return fmt.Sprintf("a angle (%f) is bigger than b angle (%f)", aAngle, bAngle)
 	case aAngle < bAngle:
-		return fmt.Sprintf("B angle (%f) is bigger than A angle (%f)", bAngle, aAngle)
+		return fmt.Sprintf("b angle (%f) is bigger than a angle (%f)", bAngle, aAngle)
 	default:
 		return fmt.Sprintf("Angles are equal (%f)", aAngle)
 	}
 }
 
 // for task2
-func CheckDotOnSegment(A Dot, Seg Segment) bool {
-	s1 := LengthBetweenDots(A, Seg.A)
-	s2 := LengthBetweenDots(A, Seg.B)
-	return math.Abs(s1+s2-Seg.Length()) < EPS
+func CheckDotOnSegment(a Dot, s Segment) bool {
+	s1 := LengthbetweenDots(a, s.A)
+	s2 := LengthbetweenDots(a, s.B)
+	return math.Abs(s1+s2-s.Length()) < EPS
 }
 
-func GetAngleABC(A, B, C Dot) float64 {
-	as := Segment{B, C}
-	bs := Segment{A, C}
-	cs := Segment{A, B}
-	a := as.Length()
-	b := bs.Length()
-	c := cs.Length()
-	cos := (a*a + c*c - b*b) / (2 * a * c)
+func GetAngleABC(a, b, c Dot) float64 {
+	as := Segment{b, c}
+	bs := Segment{a, c}
+	cs := Segment{a, b}
+	al := as.Length()
+	bl := bs.Length()
+	cl := cs.Length()
+	cos := (al*al + cl*cl - bl*bl) / (2 * al * cl)
 	acos := math.Acos(cos)
 	deg := RadToDegree(acos)
 	return deg
 }
 
 // task3
-func NormOnSegment(A Dot, Seg Segment) bool {
-	a1 := GetAngleABC(A, Seg.A, Seg.B)
-	a2 := GetAngleABC(A, Seg.B, Seg.A)
+func NormOnSegment(a Dot, s Segment) bool {
+	a1 := GetAngleABC(a, s.A, s.B)
+	a2 := GetAngleABC(a, s.B, s.A)
 
 	return (a1 < 90 && a2 < 90) ||
 		(a1 < 90 && math.Abs(a2-90) < EPS) ||
 		(a2 < 90 && math.Abs(a1-90) < EPS)
+}
+
+// line Ax + by + c = 0
+type Line struct {
+	A float64
+	B float64
+	C float64
+}
+
+// get Line from y = ax + b
+func FromAngularForm(a, b float64) *Line {
+	return &Line{A: a, B: -1, C: b}
+}
+
+// get line from segment (line, that parallel this segment)
+func FromSegment(s Segment) *Line {
+	return &Line{
+		A: s.A.Y - s.B.Y,
+		B: s.B.X - s.A.X,
+		C: s.A.X*s.B.Y - s.B.X*s.A.Y,
+	}
+}
+
+// determinant of this
+// | a b |
+// | c d |
+func det(a, b, c, d float64) float64 {
+	return a*d - b*c
+}
+
+// check if two lines are parallel
+func IsParallel(l1, l2 Line) bool {
+	return math.Abs(det(l1.A, l1.B, l2.A, l2.B)) < EPS
+}
+
+// check intersection of line with segment
+func LineSegmentItersection(l Line, s Segment) bool {
+	// l and s must be not parallel
+	l1 := l
+	l2 := *FromSegment(s)
+	if IsParallel(l1, l2) {
+		return false
+	}
+
+	// find intersection dot
+	u := det(l1.A, l1.B, l2.A, l2.B)
+	d := Dot{
+		X: -det(l1.C, l1.B, l2.C, l2.B) / u,
+		Y: -det(l1.A, l1.C, l2.A, l2.C) / u,
+	}
+
+	// dot must be on segment
+	return CheckDotOnSegment(d, s)
 }
