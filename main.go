@@ -7,7 +7,7 @@ import (
 )
 
 func Task1() {
-	a := Dot{X: 5, Y: 2}
+	a := Dot{X: -5, Y: -5}
 	b := Dot{X: 5, Y: 5}
 	fmt.Println(WhatAngleWithOxMore(a, b))
 }
@@ -24,7 +24,7 @@ func Task2() {
 }
 
 func Task3() {
-	a := Dot{X: 2, Y: 5}
+	a := Dot{X: 1, Y: 10}
 	s := Segment{A: Dot{X: 0, Y: 0}, B: Dot{X: 5, Y: 4}}
 	onSeg := NormOnSegment(a, s)
 	if onSeg {
@@ -36,7 +36,7 @@ func Task3() {
 
 func Task4() {
 	l := *FromSegment(Segment{A: Dot{X: 2, Y: 2}, B: Dot{X: 3, Y: 5}})
-	s := Segment{A: Dot{X: 0, Y: 0}, B: Dot{X: 4, Y: 3}}
+	s := Segment{A: Dot{X: 0, Y: 0}, B: Dot{X: 0, Y: 5}}
 	isInter := LineSegmentIntersection(l, s)
 	if isInter {
 		fmt.Printf("Line %v intersects with segment %v\n", l, s)
@@ -57,7 +57,7 @@ func Task5() {
 }
 
 func Task6() {
-	d := Dot{X: 2, Y: 4}
+	d := Dot{X: 0, Y: 5}
 	t := Triangle{A: Dot{X: 0, Y: 0}, B: Dot{X: 5, Y: 4}, C: Dot{X: 1, Y: 7}}
 	pos := DotAndTriangle(d, t)
 
@@ -74,11 +74,29 @@ func Task6() {
 	fmt.Printf("Dot %v is %s triangle %v\n", d, sPos, t)
 }
 
-func main() {
+func Lab1() {
 	Task1()
 	Task2()
 	Task3()
 	Task4()
 	Task5()
 	Task6()
+}
+
+func Lab2() {
+
+}
+
+func main() {
+	matrix := [][]int {
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 1, 0, 0, 1, 0, 0},
+		{0, 0, 0, 1, 1, 0, 0, 0},
+		{0, 0, 0, 1, 1, 1, 0, 0},
+		{0, 0, 1, 0, 1, 1, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+	}
+	fmt.Println(CheckSymmetry(matrix))
 }

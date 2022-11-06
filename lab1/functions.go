@@ -3,6 +3,7 @@ package lab1
 import (
 	"fmt"
 	"math"
+	"strings"
 )
 
 const (
@@ -65,6 +66,13 @@ func CheckDotOnSegment(a Dot, s Segment) bool {
 	s1 := LengthbetweenDots(a, s.A)
 	s2 := LengthbetweenDots(a, s.B)
 	return math.Abs(s1+s2-s.Length()) < EPS
+}
+
+func CheckDotOnSegmentInteger(a Dot, s Segment) bool {
+	if (s.A.X-a.X)*(s.B.Y-a.Y)+(s.B.X-a.X)*(s.A.Y-a.Y) != 0 {
+		return false
+	}
+	return (s.A.X-a.X)/(s.B.X-a.X) < 0
 }
 
 func GetAngleABC(a, b, c Dot) float64 {
@@ -220,9 +228,197 @@ func DotAndTriangle(d Dot, t Triangle) Position {
 			return Outside
 		}
 	}
-	
+
 	if wasOnBorder {
 		return OnBorder
 	}
 	return Inside
+}
+
+// not works if len(segments) < 2
+func MaxIntersectionLine(segments []Segment) (Segment, []int) {
+	dots := make([]Dot, len(segments)*2)
+	for i, s := range segments {
+		dots[2*i] = s.A
+		dots[2*i+1] = s.B
+	}
+
+	var bestA, bestB Dot
+	var bestSegments []int
+	first := true
+
+	for i := 0; i < len(dots); i++ {
+		j := i + 1
+		if j%2 == 1 {
+			j++
+		}
+		for ; j < len(dots); j++ {
+			if dots[i] == dots[j] {
+				continue
+			}
+			line := FromSegment(Segment{dots[i], dots[j]})
+			maybeSegments := make([]int, 0)
+			for k, s := range segments {
+				if LineSegmentIntersection(*line, s) {
+					maybeSegments = append(maybeSegments, k)
+				}
+			}
+			if first || len(maybeSegments) > len(bestSegments) {
+				first = false
+				bestA = dots[i]
+				bestB = dots[j]
+				bestSegments = maybeSegments
+			}
+		}
+	}
+
+	return Segment{bestA, bestB}, bestSegments
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func CheckSymmetry(matrix [][]int) []string {
+	n := len(matrix)
+	m := len(matrix[0])
+
+	left := m - 1
+	right := 0
+	up := n - 1
+	down := 0
+
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+			if matrix[i][j] != 0 {
+				left = min(left, j)
+				break
+			}
+		}
+	}
+	for i := 0; i < n; i++ {
+		for j := m - 1; j >= 0; j-- {
+			if matrix[i][j] != 0 {
+				right = max(right, j)
+				break
+			}
+		}
+	}
+	for j := 0; j < m; j++ {
+		for i := 0; i < n; i++ {
+			if matrix[i][j] != 0 {
+				up = min(up, i)
+			}
+		}
+	}
+	for j := 0; j < m; j++ {
+		for i := n - 1; i >= 0; i-- {
+			if matrix[i][j] != 0 {
+				down = max(down, i)
+			}
+		}
+	}
+
+	wide := right - left + 1
+	height := down - up + 1
+
+	cropped := make([][]int, height)
+	for i := 0; i < height; i++ {
+		cropped[i] = make([]int, wide)
+		for j := 0; j < wide; j++ {
+			cropped[i][j] = matrix[i+up][j+left]
+		}
+	}
+
+	fmt.Println(strings.ReplaceAll(fmt.Sprint(cropped), "] ", "]\n "))
+
+	symms := make([]string, 0)
+
+	check := true
+	for i := 0; i < height; i++ {
+		for j := 0; j <= wide/2; j++ {
+			if cropped[i][j] != cropped[i][wide-1-j] {
+				check = false
+				break
+			}
+		}
+		if !check {
+			break
+		}
+	}
+	if check {
+		symms = append(symms, "vertical")
+	}
+
+	check = true
+	for j := 0; j < wide; j++ {
+		for i := 0; i <= height/2; i++ {
+			if cropped[i][j] != cropped[height-1-i][j] {
+				check = false
+				break
+			}
+		}
+		if !check {
+			break
+		}
+	}
+	if check {
+		symms = append(symms, "horizontal")
+	}
+
+	if wide == height {
+
+		check = true
+		for i := 0; i < wide-1; i++ {
+			for j := i + 1; j < wide; j++ {
+				if cropped[i][j] != cropped[j][i] {
+					check = false
+					break
+				}
+			}
+			if !check {
+				break
+			}
+		}
+		if check {
+			symms = append(symms, "main_diagonal")
+		}
+
+		check = true
+		for i := 0; i < wide-1; i++ {
+			for j := 0; j < wide-1-i; j++ {
+				if cropped[i][j] != cropped[wide-1-j][wide-1-i] {
+					check = false
+					break
+				}
+			}
+			if !check {
+				break
+			}
+		}
+		if check {
+			symms = append(symms, "extra_diagonal")
+		}
+
+	}
+
+	return symms
+}
+
+func DotWithMinSumToOthersDots(dots []float64) float64 {
+	n := len(dots)
+	if n%2 == 0 {
+		return (dots[n/2-1] + dots[n/2]) / 2
+	}
+	return dots[n/2]
 }

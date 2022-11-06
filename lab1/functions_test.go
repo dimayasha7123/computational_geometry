@@ -1,6 +1,7 @@
 package lab1
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -329,6 +330,139 @@ func TestDotAndTriangle(t *testing.T) {
 			got := DotAndTriangle(tt.args.d, tt.args.t)
 
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestCheckDotOnSegmentInteger(t *testing.T) {
+	tests := []struct {
+		name string
+		a    Dot
+		seg  Segment
+		want bool
+	}{
+		{
+			name: "on horizontal line",
+			a:    Dot{X: 5, Y: 3},
+			seg:  Segment{A: Dot{X: 2, Y: 3}, B: Dot{X: 7, Y: 3}},
+			want: true,
+		},
+		{
+			name: "left from horizontal line",
+			a:    Dot{X: -123, Y: 3},
+			seg:  Segment{A: Dot{X: 2, Y: 3}, B: Dot{X: 7, Y: 3}},
+			want: false,
+		},
+		{
+			name: "up from horizontal line",
+			a:    Dot{X: 5, Y: 4},
+			seg:  Segment{A: Dot{X: 2, Y: 3}, B: Dot{X: 7, Y: 3}},
+			want: false,
+		},
+		{
+			name: "on diagonal line",
+			a:    Dot{X: 4, Y: 4},
+			seg:  Segment{A: Dot{X: 2, Y: 3}, B: Dot{X: 6, Y: 5}},
+			want: true,
+		},
+		{
+			name: "on border",
+			a:    Dot{X: 7, Y: 5},
+			seg:  Segment{Dot{2, 3}, Dot{7, 5}},
+			want: true,
+		},
+		{
+			name: "on border 2",
+			a:    Dot{X: 4, Y: 3},
+			seg:  Segment{Dot{0, 0}, Dot{4, 3}},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := CheckDotOnSegment(tt.a, tt.seg)
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestMaxIntersectionLine(t *testing.T) {
+	type args struct {
+		segments []Segment
+	}
+	tests := []struct {
+		name string
+		args args
+		want []int
+	}{
+		{
+			name: "test1",
+			args: args{
+				segments: []Segment{
+					{Dot{3.0, 1.0}, Dot{2.0, 5.0}},
+					{Dot{3.0, 8.0}, Dot{5.0, 10.0}},
+					{Dot{5.0, 4.0}, Dot{6.0, 7.0}},
+					{Dot{9.0, 3.0}, Dot{8.0, 6.0}},
+				}},
+			want: []int{0, 2, 3},
+		},
+		{
+			name: "test2",
+			args: args{
+				segments: []Segment{
+					{Dot{3.0, 1.0}, Dot{2.0, 5.0}},
+					{Dot{3.0, 8.0}, Dot{5.0, 10.0}},
+				}},
+			want: []int{0, 1},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, got := MaxIntersectionLine(tt.args.segments)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MaxIntersectionLine() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDotWithMinSumToOthersDots(t *testing.T) {
+	type args struct {
+		dots []float64
+	}
+	tests := []struct {
+		name string
+		args args
+		want float64
+	}{
+		{
+			name: "even",
+			args: args{
+				dots: []float64{2, 4, 7, 9},
+			},
+			want: 5.5,
+		},
+		{
+			name: "odd",
+			args: args{
+				dots: []float64{2, 4, 6},
+			},
+			want: 4,
+		},
+		{
+			name: "negative",
+			args: args{
+				dots: []float64{-5, -10, -20},
+			},
+			want: -10,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := DotWithMinSumToOthersDots(tt.args.dots); got != tt.want {
+				t.Errorf("DotWithMinSumToOthersDots() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
