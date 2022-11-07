@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	. "github.com/dimayasha7123/computational_geometry/lab1"
 )
@@ -83,20 +84,73 @@ func Lab1() {
 	Task6()
 }
 
-func Lab2() {
+func Task7() {
+	segments := []Segment{
+		{Dot{3.0, 1.0}, Dot{2.0, 5.0}},
+		{Dot{3.0, 8.0}, Dot{5.0, 10.0}},
+		{Dot{5.0, 4.0}, Dot{6.0, 7.0}},
+		{Dot{9.0, 3.0}, Dot{8.0, 6.0}},
+	}
+	lineSegment, segment_nums := MaxIntersectionLine(segments)
 
+	fmt.Println("Task 1")
+	fmt.Println("Segments:")
+	for i, s := range segments {
+		fmt.Printf("%d: (%.1f, %.1f), (%.1f, %.1f)\n",
+		i,
+		s.A.X,
+		s.A.Y,
+		s.B.X,
+		s.B.Y,)
+	}
+	fmt.Printf("Line with dots (%.1f, %.1f), (%.1f, %.1f) intersects with %d segments: %s\n",
+		lineSegment.A.X,
+		lineSegment.A.Y,
+		lineSegment.B.X,
+		lineSegment.B.Y,
+		len(segment_nums),
+		fmt.Sprint(segment_nums)[1:len(fmt.Sprint(segment_nums))-1],
+	)
 }
 
-func main() {
-	matrix := [][]int {
+func Task8() {
+
+	matrix := [][]int{
 		{0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 1, 0, 0, 1, 0, 0},
-		{0, 0, 0, 1, 1, 0, 0, 0},
-		{0, 0, 0, 1, 1, 1, 0, 0},
-		{0, 0, 1, 0, 1, 1, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 1, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 1, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0},
 	}
-	fmt.Println(CheckSymmetry(matrix))
+	cropped, symms := CheckSymmetry(matrix)
+
+	fmt.Println("Task 2")
+	fmt.Println("Input drawing:")
+	fmt.Println(strings.ReplaceAll(fmt.Sprint(matrix), "] ", "]\n "))
+	fmt.Println("Cropped drawing:")
+	fmt.Println(strings.ReplaceAll(fmt.Sprint(cropped), "] ", "]\n "))
+	fmt.Println("Axes of symmetry:", fmt.Sprint(symms)[1:len(fmt.Sprint(symms))-1])
+
+}
+
+func Task9() {
+	dots := []float64{2, 4, 7, 9}
+	middle := DotWithMinSumToOthersDots(dots)
+
+	fmt.Println("Task 3")
+	fmt.Println("Dots:  ", fmt.Sprint(dots)[1:len(fmt.Sprint(dots))-1])
+	fmt.Println("Middle:", middle)
+}
+
+func Lab2() {
+	Task7()
+	Task8()
+	Task9()
+}
+
+func main() {
+	Lab2()
 }

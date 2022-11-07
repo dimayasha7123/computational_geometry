@@ -416,6 +416,14 @@ func TestMaxIntersectionLine(t *testing.T) {
 				}},
 			want: []int{0, 1},
 		},
+		{
+			name: "one_segment",
+			args: args{
+				segments: []Segment{
+					{Dot{3.0, 1.0}, Dot{2.0, 5.0}},
+				}},
+			want: []int{0},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

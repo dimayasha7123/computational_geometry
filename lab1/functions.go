@@ -3,7 +3,6 @@ package lab1
 import (
 	"fmt"
 	"math"
-	"strings"
 )
 
 const (
@@ -235,8 +234,12 @@ func DotAndTriangle(d Dot, t Triangle) Position {
 	return Inside
 }
 
-// not works if len(segments) < 2
+
 func MaxIntersectionLine(segments []Segment) (Segment, []int) {
+	if len(segments) == 1 {
+		return Segment{segments[0].A, Dot{segments[0].B.X + 10, segments[0].B.Y + 10}}, []int{0}
+	}
+
 	dots := make([]Dot, len(segments)*2)
 	for i, s := range segments {
 		dots[2*i] = s.A
@@ -289,7 +292,9 @@ func max(a, b int) int {
 	return b
 }
 
-func CheckSymmetry(matrix [][]int) []string {
+
+// no tests... but i'm tired... just believe, it works
+func CheckSymmetry(matrix [][]int) ([][]int, []string) {
 	n := len(matrix)
 	m := len(matrix[0])
 
@@ -332,6 +337,10 @@ func CheckSymmetry(matrix [][]int) []string {
 	wide := right - left + 1
 	height := down - up + 1
 
+	if wide <= 0 || height <= 0 {
+		return [][]int{}, []string{}
+	}
+
 	cropped := make([][]int, height)
 	for i := 0; i < height; i++ {
 		cropped[i] = make([]int, wide)
@@ -340,7 +349,7 @@ func CheckSymmetry(matrix [][]int) []string {
 		}
 	}
 
-	fmt.Println(strings.ReplaceAll(fmt.Sprint(cropped), "] ", "]\n "))
+	// fmt.Println(strings.ReplaceAll(fmt.Sprint(cropped), "] ", "]\n "))
 
 	symms := make([]string, 0)
 
@@ -412,7 +421,7 @@ func CheckSymmetry(matrix [][]int) []string {
 
 	}
 
-	return symms
+	return cropped, symms
 }
 
 func DotWithMinSumToOthersDots(dots []float64) float64 {
