@@ -138,7 +138,7 @@ func Task8() {
 }
 
 func Task9() {
-	dots := []float64{2, 4, 7, 9}
+	dots := []float64{-1, 0, 1, 100, 1000}
 	middle := DotWithMinSumToOthersDots(dots)
 
 	fmt.Println("Task 3")

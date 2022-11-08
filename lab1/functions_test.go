@@ -1,6 +1,7 @@
 package lab1
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -470,6 +471,73 @@ func TestDotWithMinSumToOthersDots(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := DotWithMinSumToOthersDots(tt.args.dots); got != tt.want {
 				t.Errorf("DotWithMinSumToOthersDots() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPolygon_IsSimple(t *testing.T) {
+	tests := []struct {
+		name string
+		p    Polygon
+		want bool
+	}{
+		{
+			name: "intersects",
+			p:    *NewPolygon([]Dot{{0, 0}, {5, 3}, {9, 2}, {12, -4}, {5, -7}, {7, -2}, {9, -9}, {1, -11}, {-2, -5}}),
+			want: false,
+		},
+		{
+			name: "not_intersects",
+			p:    *NewPolygon([]Dot{{0, 0}, {4, 3}, {5, -2}, {3, -1}, {1, -4}}),
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.p.IsSimple(); got != tt.want {
+				t.Errorf("Polygon.IsSimple() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPolygon_Square(t *testing.T) {
+	tests := []struct {
+		name    string
+		p       Polygon
+		want    float64
+		wantErr error
+	}{
+		{
+			name:    "convex_polygon",
+			p:       *NewPolygon([]Dot{{0, 0}, {4, 3}, {7, -1}, {5, -5}, {2, -3}}),
+			want:    30,
+			wantErr: nil,
+		},
+		{
+			name:    "not_convex_polygon",
+			p:       *NewPolygon([]Dot{{0, 0}, {-2, 4}, {0, 7}, {4, 7}, {2, 4}, {6, 1}}),
+			want:    31,
+			wantErr: nil,
+		},
+		{
+			name:    "not_simple_polygon",
+			p:    *NewPolygon([]Dot{{0, 0}, {5, 3}, {9, 2}, {12, -4}, {5, -7}, {7, -2}, {9, -9}, {1, -11}, {-2, -5}}),
+			want:    0,
+			wantErr: fmt.Errorf(NotSimplePolygonError),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.p.Square()
+			if tt.wantErr == nil {
+				assert.NoError(t, err)
+			} else {
+				assert.EqualError(t, err, tt.wantErr.Error())
+			}
+			if got != tt.want {
+				t.Errorf("Polygon.Square() = %v, want %v", got, tt.want)
 			}
 		})
 	}

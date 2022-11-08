@@ -234,7 +234,6 @@ func DotAndTriangle(d Dot, t Triangle) Position {
 	return Inside
 }
 
-
 func MaxIntersectionLine(segments []Segment) (Segment, []int) {
 	if len(segments) == 1 {
 		return Segment{segments[0].A, Dot{segments[0].B.X + 10, segments[0].B.Y + 10}}, []int{0}
@@ -291,7 +290,6 @@ func max(a, b int) int {
 	}
 	return b
 }
-
 
 // no tests... but i'm tired... just believe, it works
 func CheckSymmetry(matrix [][]int) ([][]int, []string) {
@@ -430,4 +428,47 @@ func DotWithMinSumToOthersDots(dots []float64) float64 {
 		return (dots[n/2-1] + dots[n/2]) / 2
 	}
 	return dots[n/2]
+}
+
+type Polygon []Dot
+
+// in polygon on last place we have first element to simplify calculations
+func NewPolygon(dots []Dot) *Polygon {
+	dots = append(dots, dots[0])
+	p := make(Polygon, len(dots))
+	copy(p, dots)
+	return &p
+}
+
+func (p Polygon) IsSimple() bool {
+
+	for i := 0; i < len(p)-3; i++ {
+		for j := i + 2; j < len(p)-1; j++ {
+			if i == 0 && j == len(p)-2 {
+				continue
+			}
+			s1 := Segment{p[i], p[i+1]}
+			s2 := Segment{p[j], p[j+1]}
+			if SegmentsIntersection(s1, s2) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+const (
+	NotSimplePolygonError string = "polygon isn't simple (have edges intersection)"
+)
+
+func (p Polygon) Square() (float64, error) {
+	if !p.IsSimple() {
+		return 0, fmt.Errorf(NotSimplePolygonError)
+	}
+	summ := 0.0
+	for i := 0; i < len(p)-1; i++ {
+		summ += (p[i+1].X - p[i].X) * (p[i+1].Y + p[i].Y)
+	}
+	summ /= 2
+	return summ, nil
 }
