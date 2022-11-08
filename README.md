@@ -10,3 +10,11 @@
 ## Лабораторная №2
 
 ![lab2pic](./pics/lab2.png)
+
+## Лабораторная №3
+
+![lab3pic](./pics/lab3.jpg)
+
+## Лабораторная №4
+
+![lab4pic](./pics/lab4.jpg)

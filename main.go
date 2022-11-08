@@ -86,10 +86,11 @@ func Lab1() {
 
 func Task7() {
 	segments := []Segment{
-		{A: Dot{X: 3.0, Y: 1.0}, B: Dot{X: 2.0, Y: 5.0}},
-		{A: Dot{X: 3.0, Y: 8.0}, B: Dot{X: 5.0, Y: 10.0}},
-		{A: Dot{X: 5.0, Y: 4.0}, B: Dot{X: 6.0, Y: 7.0}},
-		{A: Dot{X: 9.0, Y: 3.0}, B: Dot{X: 8.0, Y: 6.0}},
+		{A: Dot{X: 0.0, Y: 0.0}, B: Dot{X: 0.0, Y: 1.0}},
+		{A: Dot{X: 1.0, Y: 0.0}, B: Dot{X: 1.0, Y: -1.0}},
+		{A: Dot{X: 2.0, Y: 0.0}, B: Dot{X: 2.0, Y: 1.0}},
+		{A: Dot{X: 3.0, Y: 0.0}, B: Dot{X: 3.0, Y: -1.0}},
+		{A: Dot{X: 5.0, Y: 5.0}, B: Dot{X: 5.0, Y: 6.0}},
 	}
 	lineSegment, segment_nums := MaxIntersectionLine(segments)
 	
