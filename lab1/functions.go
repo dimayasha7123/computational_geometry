@@ -472,3 +472,27 @@ func (p Polygon) Square() (float64, error) {
 	summ /= 2
 	return summ, nil
 }
+
+func (p Polygon) IsConvex() bool {
+	sdtas := make([]float64, len(p)-1)
+	for i := 0; i < len(p)-2; i++ {
+		sdtas[i] = SignedDoubleTriangleArea(p[i], p[i+1], p[i+2])
+	}
+	sdtas[len(sdtas)-1] = SignedDoubleTriangleArea(p[len(p)-1], p[0], p[1])
+	right := 0
+	left := 0
+	for _, v := range sdtas {
+		if math.Abs(v) < EPS {
+			continue
+		} 
+		if v > 0 {
+			right++
+		} else {
+			left--
+		}
+	}
+	if left == 0 || right == 0 {
+		return true
+	}
+	return false
+}

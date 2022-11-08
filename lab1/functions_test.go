@@ -523,7 +523,7 @@ func TestPolygon_Square(t *testing.T) {
 		},
 		{
 			name:    "not_simple_polygon",
-			p:    *NewPolygon([]Dot{{0, 0}, {5, 3}, {9, 2}, {12, -4}, {5, -7}, {7, -2}, {9, -9}, {1, -11}, {-2, -5}}),
+			p:       *NewPolygon([]Dot{{0, 0}, {5, 3}, {9, 2}, {12, -4}, {5, -7}, {7, -2}, {9, -9}, {1, -11}, {-2, -5}}),
 			want:    0,
 			wantErr: fmt.Errorf(NotSimplePolygonError),
 		},
@@ -538,6 +538,42 @@ func TestPolygon_Square(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("Polygon.Square() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPolygon_IsConvex(t *testing.T) {
+	tests := []struct {
+		name string
+		p    Polygon
+		want bool
+	}{
+		{
+			name: "convex1",
+			p:    *NewPolygon([]Dot{{0, 0}, {5, 3}, {9, 2}, {12, -4}, {9, -9}, {1, -11}, {-2, -5}}),
+			want: true,
+		},
+		{
+			name: "convex2",
+			p:    *NewPolygon([]Dot{{0, 0}, {4, 3}, {7, -1}, {5, -5}, {2, -3}}),
+			want: true,
+		},
+		{
+			name: "not_convex1",
+			p:    *NewPolygon([]Dot{{0, 0}, {-2, 4}, {0, 7}, {4, 7}, {2, 4}, {6, 1}}),
+			want: false,
+		},
+		{
+			name: "not_convex2",
+			p:    *NewPolygon([]Dot{{0, 0}, {4, 3}, {5, -2}, {3, -1}, {1, -4}}),
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.p.IsConvex(); got != tt.want {
+				t.Errorf("Polygon.IsConvex() = %v, want %v", got, tt.want)
 			}
 		})
 	}
