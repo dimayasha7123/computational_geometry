@@ -530,7 +530,7 @@ func TestPolygon_Square(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.p.Square()
+			got, err := tt.p.Area()
 			if tt.wantErr == nil {
 				assert.NoError(t, err)
 			} else {

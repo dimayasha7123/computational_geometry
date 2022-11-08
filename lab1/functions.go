@@ -3,6 +3,7 @@ package lab1
 import (
 	"fmt"
 	"math"
+	"strings"
 )
 
 const (
@@ -440,8 +441,20 @@ func NewPolygon(dots []Dot) *Polygon {
 	return &p
 }
 
-func (p Polygon) IsSimple() bool {
+func (p Polygon) String() string {
+	sb := strings.Builder{}
+	sb.WriteString("Polygon dots:\n")
+	sb.WriteString("   X     Y \n")
+	sb.WriteString("-----------\n")
+	for i := 0; i < len(p)-1; i++ {
+		sb.WriteString(fmt.Sprintf("%5.1f %5.1f\n", p[i].X, p[i].Y))
+	}
+	out := sb.String()
+	out = out[:len(out)-1]
+	return out
+}
 
+func (p Polygon) IsSimple() bool {
 	for i := 0; i < len(p)-3; i++ {
 		for j := i + 2; j < len(p)-1; j++ {
 			if i == 0 && j == len(p)-2 {
@@ -461,7 +474,7 @@ const (
 	NotSimplePolygonError string = "polygon isn't simple (have edges intersection)"
 )
 
-func (p Polygon) Square() (float64, error) {
+func (p Polygon) Area() (float64, error) {
 	if !p.IsSimple() {
 		return 0, fmt.Errorf(NotSimplePolygonError)
 	}

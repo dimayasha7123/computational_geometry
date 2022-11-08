@@ -93,16 +93,16 @@ func Task7() {
 		{A: Dot{X: 5.0, Y: 5.0}, B: Dot{X: 5.0, Y: 6.0}},
 	}
 	lineSegment, segment_nums := MaxIntersectionLine(segments)
-	
+
 	fmt.Println("Task 1")
 	fmt.Println("Segments:")
 	for i, s := range segments {
 		fmt.Printf("%d: (%.1f, %.1f), (%.1f, %.1f)\n",
-		i,
-		s.A.X,
-		s.A.Y,
-		s.B.X,
-		s.B.Y,)
+			i,
+			s.A.X,
+			s.A.Y,
+			s.B.X,
+			s.B.Y)
 	}
 	fmt.Printf("Line with dots (%.1f, %.1f), (%.1f, %.1f) intersects with %d segments: %s\n",
 		lineSegment.A.X,
@@ -152,6 +152,53 @@ func Lab2() {
 	Task9()
 }
 
+func Task10() {
+	p := *NewPolygon([]Dot{{0, 0}, {5, 3}, {9, 2}, {12, -4}, {5, -7}, {7, -2}, {9, -9}, {1, -11}, {-2, -5}})
+	simple := p.IsSimple()
+
+	fmt.Println("Task 1")
+	fmt.Println(p)
+	if simple {
+		fmt.Println("Polygon is simple")
+	} else {
+		fmt.Println("Polygon is NOT simple")
+	}
+}
+
+func Task11() {
+	p := *NewPolygon([]Dot{{0, 0}, {-2, 4}, {0, 7}, {4, 7}, {2, 4}, {6, 1}})
+	area, err := p.Area()
+
+	fmt.Println("Task 2")
+	fmt.Println(p)
+	if err != nil {
+		fmt.Println("Oooops, error:", err)
+		return
+	}
+	fmt.Println("Area: ", area)
+}
+
+func Task12() {
+	p := *NewPolygon([]Dot{{0, 0}, {4, 3}, {7, -1}, {5, -5}, {2, -3}})
+	simple := p.IsConvex()
+
+	fmt.Println("Task 3")
+	fmt.Println(p)
+	if simple {
+		fmt.Println("Polygon is convex")
+	} else {
+		fmt.Println("Polygon is NOT convex")
+	}
+}
+
+func Lab3() {
+	Task10()
+	Task11()
+	Task12()
+}
+
 func main() {
-	Lab2()
+	// Lab1()
+	// Lab2()
+	Lab3()
 }
