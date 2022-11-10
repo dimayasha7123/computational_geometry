@@ -578,3 +578,48 @@ func TestPolygon_IsConvex(t *testing.T) {
 		})
 	}
 }
+
+func TestCCHGrahamAndrew(t *testing.T) {
+	type args struct {
+		dots []Dot
+	}
+	tests := []struct {
+		name string
+		args args
+		want Polygon
+	}{
+		{
+			name: "big_test",
+			args: args{
+				dots: []Dot{{0, 0}, {-2, 2}, {1.5, -1.5}, {8, 3}, {8.5, -0.5},
+					{10, 2}, {11, 6}, {10, -1}, {9, -4}, {8, -3},
+					{6.5, -6}, {0, -5}, {-4, 0}, {-2, -4}, {-4, -3},
+					{1, 3}, {-0.5, 4.5}, {-3, 5}, {-1, 7}, {2, 6},
+					{4, 5}, {3, 8}, {6, 6}},
+			},
+			want: *NewPolygon([]Dot{{-4, -3}, {-4, 0}, {-3, 5}, {-1, 7}, {3, 8}, {6, 6}, {11, 6},
+				{10, -1}, {9, -4}, {6.5, -6}, {0, -5}, {-2, -4}}),
+		},
+		{
+			name: "like_D",
+			args: args{
+				dots: []Dot{{0, 0}, {2, 0}, {3, 1}, {5, 0}, {1, -2}, {3, -2}, {5, -2}, {6, 2}, {6, 5}},
+			},
+			want: *NewPolygon([]Dot{{0, 0}, {6, 5}, {6, 2}, {5, -2}, {1, -2}}),
+		},
+		{
+			name: "simple_line",
+			args: args{
+				dots: []Dot{{0, 0}, {6, 5}},
+			},
+			want: *NewPolygon([]Dot{{0, 0}, {6, 5}}),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := CCHGrahamAndrew(tt.args.dots); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CCHGrahamAndrew() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

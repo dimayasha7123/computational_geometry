@@ -200,5 +200,19 @@ func Lab3() {
 func main() {
 	// Lab1()
 	// Lab2()
-	Lab3()
+	// Lab3()
+	p1 := Dot{X: 1, Y: 0}
+	p2 := Dot{X: 3, Y: 0}
+	p3 := Dot{X: 2, Y: 0}
+	p4 := Dot{X: 8, Y: 2}
+	p5 := Dot{X: 15, Y: 9}
+
+	a1 := SignedDoubleTriangleArea(p1, p2, p3)
+	a2 := SignedDoubleTriangleArea(p1, p2, p4)
+	a3 := SignedDoubleTriangleArea(p1, p2, p5)
+
+	fmt.Println("a1:", a1)
+	fmt.Println("a2:", a2)
+	fmt.Println("a3:", a3)
+
 }

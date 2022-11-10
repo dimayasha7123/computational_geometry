@@ -3,6 +3,7 @@ package lab1
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 )
 
@@ -446,7 +447,7 @@ func (p Polygon) String() string {
 	sb.WriteString("Polygon dots:\n")
 	sb.WriteString("   X     Y \n")
 	sb.WriteString("-----------\n")
-	for i := 0; i < len(p)-1; i++ {
+	for i := 0; i < len(p); i++ {
 		sb.WriteString(fmt.Sprintf("%5.1f %5.1f\n", p[i].X, p[i].Y))
 	}
 	out := sb.String()
@@ -508,4 +509,78 @@ func (p Polygon) IsConvex() bool {
 		return true
 	}
 	return false
+}
+
+
+// CCH is construction of a convex hull
+// check this for understanding http://www.e-maxx-ru.1gb.ru/algo/convex_hull_graham
+func CCHGrahamAndrew(dots []Dot) Polygon {
+
+	// sort dots by X ascending, if equal, then by Y ascending
+	sort.Slice(dots, func(i, j int) bool {
+		switch{
+		case dots[i].X < dots[j].X:
+			return true
+		case dots[i].X > dots[j].X:
+			return false
+		case dots[i].Y < dots[j].Y:
+			return true
+		case dots[i].Y > dots[j].Y:
+			return false
+		default:
+			return true // shit in your own pants, if u call this function this with two equal dots
+		}
+	})
+
+	leftDownDot := dots[0]
+	rightUpDot := dots[len(dots)-1]
+	up := make([]Dot, 0, len(dots)/2)
+	up = append(up, rightUpDot, leftDownDot) 	// its stupid to add this two dots (because then i remove it), but i've done it, because i can
+	downPrep := make([]Dot, 0, len(dots)/2)
+	
+	for i := 1; i < len(dots) - 1; i++ {
+		sign := SignedDoubleTriangleArea(leftDownDot, rightUpDot, dots[i])
+		switch {
+		case math.Abs(sign) < EPS:
+			continue
+		case sign > 0:
+			up = append(up, dots[i])
+		default:
+			downPrep = append(downPrep, dots[i])
+		}
+	}
+
+	// add leftDownDot, rightUpDot and reversed downPrep to down
+	down := make([]Dot, len(downPrep)+2)
+	down[0] = leftDownDot
+	down[1] = rightUpDot
+	for i := 2; i < len(down); i++ {
+		down[i] = downPrep[len(downPrep)+1-i]
+	}
+
+	output := make([]Dot, 1)
+	output[0] = leftDownDot
+	output = makeOneHalfConvexHull(up, output)
+	output = append(output, rightUpDot)
+	output = makeOneHalfConvexHull(down, output)
+
+	fmt.Println(output)
+
+
+	return *NewPolygon(output)
+}
+
+func makeOneHalfConvexHull(dots []Dot, output []Dot) []Dot{
+	if len(dots) != 2 {
+		output = append(output, dots[2])
+		for i := 3; i < len(dots); i++ {
+			sign := SignedDoubleTriangleArea(output[len(output)-2], output[len(output)-1], dots[i])
+			for math.Abs(sign) < EPS || math.Abs(sign) > EPS && sign > 0 {
+				output = output[:len(output)-1]
+				sign = SignedDoubleTriangleArea(output[len(output)-2], output[len(output)-1], dots[i])
+			}
+			output = append(output, dots[i])
+		}
+	}
+	return output
 }
