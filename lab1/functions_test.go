@@ -492,6 +492,16 @@ func TestPolygon_IsSimple(t *testing.T) {
 			p:    *NewPolygon([]Dot{{0, 0}, {4, 3}, {5, -2}, {3, -1}, {1, -4}}),
 			want: true,
 		},
+		{
+			name: "line_with_dot",
+			p:    *NewPolygon([]Dot{{0, 0}, {2, 6}, {4, 3}, {1, 3}, {3, 0}}),
+			want: false,
+		},
+		{
+			name: "intersects_ind_dot",
+			p:    *NewPolygon([]Dot{{-2, -3}, {0, 0}, {2, 3}, {-2, 3}, {0, 0}, {2, -3}}),
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -579,46 +589,124 @@ func TestPolygon_IsConvex(t *testing.T) {
 	}
 }
 
+var testsForCCH = []struct {
+	name string
+	arg  []Dot
+	want Polygon
+}{
+	{
+		name: "big_test",
+		arg: []Dot{{0, 0}, {-2, 2}, {1.5, -1.5}, {8, 3}, {8.5, -0.5},
+			{10, 2}, {11, 6}, {10, -1}, {9, -4}, {8, -3},
+			{6.5, -6}, {0, -5}, {-4, 0}, {-2, -4}, {-4, -3},
+			{1, 3}, {-0.5, 4.5}, {-3, 5}, {-1, 7}, {2, 6},
+			{4, 5}, {3, 8}, {6, 6}},
+		want: []Dot{{-4, -3}, {-4, 0}, {-3, 5}, {-1, 7}, {3, 8}, {11, 6},
+			{10, -1}, {9, -4}, {6.5, -6}, {0, -5}},
+	},
+	{
+		name: "like_D",
+		arg:  []Dot{{0, 0}, {2, 0}, {3, 1}, {5, 0}, {1, -2}, {3, -2}, {5, -2}, {6, 2}, {6, 5}},
+		want: []Dot{{0, 0}, {6, 5}, {6, 2}, {5, -2}, {1, -2}},
+	},
+	{
+		name: "simple_line",
+		arg:  []Dot{{0, 0}, {6, 5}},
+		want: []Dot{{0, 0}, {6, 5}},
+	},
+}
+
 func TestCCHGrahamAndrew(t *testing.T) {
-	type args struct {
-		dots []Dot
-	}
-	tests := []struct {
-		name string
-		args args
-		want Polygon
-	}{
-		{
-			name: "big_test",
-			args: args{
-				dots: []Dot{{0, 0}, {-2, 2}, {1.5, -1.5}, {8, 3}, {8.5, -0.5},
-					{10, 2}, {11, 6}, {10, -1}, {9, -4}, {8, -3},
-					{6.5, -6}, {0, -5}, {-4, 0}, {-2, -4}, {-4, -3},
-					{1, 3}, {-0.5, 4.5}, {-3, 5}, {-1, 7}, {2, 6},
-					{4, 5}, {3, 8}, {6, 6}},
-			},
-			want: *NewPolygon([]Dot{{-4, -3}, {-4, 0}, {-3, 5}, {-1, 7}, {3, 8}, {6, 6}, {11, 6},
-				{10, -1}, {9, -4}, {6.5, -6}, {0, -5}, {-2, -4}}),
-		},
-		{
-			name: "like_D",
-			args: args{
-				dots: []Dot{{0, 0}, {2, 0}, {3, 1}, {5, 0}, {1, -2}, {3, -2}, {5, -2}, {6, 2}, {6, 5}},
-			},
-			want: *NewPolygon([]Dot{{0, 0}, {6, 5}, {6, 2}, {5, -2}, {1, -2}}),
-		},
-		{
-			name: "simple_line",
-			args: args{
-				dots: []Dot{{0, 0}, {6, 5}},
-			},
-			want: *NewPolygon([]Dot{{0, 0}, {6, 5}}),
-		},
-	}
-	for _, tt := range tests {
+	for _, tt := range testsForCCH {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := CCHGrahamAndrew(tt.args.dots); !reflect.DeepEqual(got, tt.want) {
+			dots := make([]Dot, len(tt.arg))
+			copy(dots, tt.arg)
+			got := CCHGrahamAndrew(dots)
+			check := false
+			for i := 0; i < len(tt.want); i++ {
+				shifted := make([]Dot, len(tt.want))
+				iter := 0
+				for j := i; j < len(tt.want); j++ {
+					shifted[iter] = tt.want[j]
+					iter++
+				}
+				for j := 0; j < i; j++ {
+					shifted[iter] = tt.want[j]
+					iter++
+				}
+
+				if reflect.DeepEqual(got, *NewPolygon(shifted)) {
+					check = true
+					break
+				}
+			}
+
+			if !check {
 				t.Errorf("CCHGrahamAndrew() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCCHJarvis(t *testing.T) {
+	for _, tt := range testsForCCH {
+		t.Run(tt.name, func(t *testing.T) {
+			dots := make([]Dot, len(tt.arg))
+			copy(dots, tt.arg)
+			got := CCHJarvis(dots)
+			check := false
+			for i := 0; i < len(tt.want); i++ {
+				shifted := make([]Dot, len(tt.want))
+				iter := 0
+				for j := i; j < len(tt.want); j++ {
+					shifted[iter] = tt.want[j]
+					iter++
+				}
+				for j := 0; j < i; j++ {
+					shifted[iter] = tt.want[j]
+					iter++
+				}
+
+				if reflect.DeepEqual(got, *NewPolygon(shifted)) {
+					check = true
+					break
+				}
+			}
+
+			if !check {
+				t.Errorf("CCHJarvis) = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCCHDivideAndConquer(t *testing.T) {
+	for _, tt := range testsForCCH {
+		t.Run(tt.name, func(t *testing.T) {
+			dots := make([]Dot, len(tt.arg))
+			copy(dots, tt.arg)
+			got := CCHDivideAndConquer(dots)
+			check := false
+			for i := 0; i < len(tt.want); i++ {
+				shifted := make([]Dot, len(tt.want))
+				iter := 0
+				for j := i; j < len(tt.want); j++ {
+					shifted[iter] = tt.want[j]
+					iter++
+				}
+				for j := 0; j < i; j++ {
+					shifted[iter] = tt.want[j]
+					iter++
+				}
+
+				if reflect.DeepEqual(got, *NewPolygon(shifted)) {
+					check = true
+					break
+				}
+			}
+
+			if !check {
+				t.Errorf("CCHJarvis) = %v, want %v", got, tt.want)
 			}
 		})
 	}

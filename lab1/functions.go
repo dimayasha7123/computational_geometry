@@ -5,6 +5,7 @@ import (
 	"math"
 	"sort"
 	"strings"
+	"sync"
 )
 
 const (
@@ -436,6 +437,9 @@ type Polygon []Dot
 
 // in polygon on last place we have first element to simplify calculations
 func NewPolygon(dots []Dot) *Polygon {
+	if len(dots) == 0 {
+		return &Polygon{}
+	}
 	dots = append(dots, dots[0])
 	p := make(Polygon, len(dots))
 	copy(p, dots)
@@ -498,7 +502,7 @@ func (p Polygon) IsConvex() bool {
 	for _, v := range sdtas {
 		if math.Abs(v) < EPS {
 			continue
-		} 
+		}
 		if v > 0 {
 			right++
 		} else {
@@ -511,44 +515,50 @@ func (p Polygon) IsConvex() bool {
 	return false
 }
 
-
-// CCH is construction of a convex hull
+// CCH is Construction of a Convex Hull
 // check this for understanding http://www.e-maxx-ru.1gb.ru/algo/convex_hull_graham
 func CCHGrahamAndrew(dots []Dot) Polygon {
+	if len(dots) <= 2 {
+		return *NewPolygon(dots)
+	}
+
+	dotsCopy := make([]Dot, len(dots))
+	copy(dotsCopy, dots)
 
 	// sort dots by X ascending, if equal, then by Y ascending
-	sort.Slice(dots, func(i, j int) bool {
-		switch{
-		case dots[i].X < dots[j].X:
+	sort.Slice(dotsCopy, func(i, j int) bool {
+		switch {
+		case dotsCopy[i].X < dotsCopy[j].X:
 			return true
-		case dots[i].X > dots[j].X:
+		case dotsCopy[i].X > dotsCopy[j].X:
 			return false
-		case dots[i].Y < dots[j].Y:
+		case dotsCopy[i].Y < dotsCopy[j].Y:
 			return true
-		case dots[i].Y > dots[j].Y:
+		case dotsCopy[i].Y > dotsCopy[j].Y:
 			return false
 		default:
 			return true // shit in your own pants, if u call this function this with two equal dots
 		}
 	})
 
-	leftDownDot := dots[0]
-	rightUpDot := dots[len(dots)-1]
-	up := make([]Dot, 0, len(dots)/2)
-	up = append(up, rightUpDot, leftDownDot) 	// its stupid to add this two dots (because then i remove it), but i've done it, because i can
-	downPrep := make([]Dot, 0, len(dots)/2)
-	
-	for i := 1; i < len(dots) - 1; i++ {
-		sign := SignedDoubleTriangleArea(leftDownDot, rightUpDot, dots[i])
+	leftDownDot := dotsCopy[0]
+	rightUpDot := dotsCopy[len(dotsCopy)-1]
+	up := make([]Dot, 0, len(dotsCopy)/2)
+	up = append(up, rightUpDot, leftDownDot) // its stupid to add this two dots (because then i remove it), but i've done it, because i can
+	downPrep := make([]Dot, 0, len(dotsCopy)/2)
+
+	for i := 1; i < len(dotsCopy)-1; i++ {
+		sign := SignedDoubleTriangleArea(leftDownDot, rightUpDot, dotsCopy[i])
 		switch {
 		case math.Abs(sign) < EPS:
 			continue
 		case sign > 0:
-			up = append(up, dots[i])
+			up = append(up, dotsCopy[i])
 		default:
-			downPrep = append(downPrep, dots[i])
+			downPrep = append(downPrep, dotsCopy[i])
 		}
 	}
+	up = append(up, rightUpDot)
 
 	// add leftDownDot, rightUpDot and reversed downPrep to down
 	down := make([]Dot, len(downPrep)+2)
@@ -557,30 +567,151 @@ func CCHGrahamAndrew(dots []Dot) Polygon {
 	for i := 2; i < len(down); i++ {
 		down[i] = downPrep[len(downPrep)+1-i]
 	}
+	down = append(down, leftDownDot)
 
 	output := make([]Dot, 1)
 	output[0] = leftDownDot
 	output = makeOneHalfConvexHull(up, output)
-	output = append(output, rightUpDot)
 	output = makeOneHalfConvexHull(down, output)
+	output = output[:len(output)-1]
 
-	fmt.Println(output)
-
+	// fmt.Println("up:    ", up)
+	// fmt.Println("down:  ", down)
+	// fmt.Println("output:", output)
 
 	return *NewPolygon(output)
 }
 
-func makeOneHalfConvexHull(dots []Dot, output []Dot) []Dot{
+func makeOneHalfConvexHull(dots []Dot, output []Dot) []Dot {
 	if len(dots) != 2 {
 		output = append(output, dots[2])
 		for i := 3; i < len(dots); i++ {
 			sign := SignedDoubleTriangleArea(output[len(output)-2], output[len(output)-1], dots[i])
 			for math.Abs(sign) < EPS || math.Abs(sign) > EPS && sign > 0 {
 				output = output[:len(output)-1]
+				if len(output) <= 2 {
+					break
+				}
 				sign = SignedDoubleTriangleArea(output[len(output)-2], output[len(output)-1], dots[i])
 			}
 			output = append(output, dots[i])
 		}
 	}
 	return output
+}
+
+func CheckAllDotsAreRightFromLineAB(a, b Dot, dots []Dot) bool {
+	for _, d := range dots {
+		if d == a || d == b {
+			continue
+		}
+		sign := SignedDoubleTriangleArea(a, b, d)
+		if math.Abs(sign) < EPS && !CheckDotOnSegment(d, Segment{a, b}) || sign > 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func CCHJarvis(dots []Dot) Polygon {
+	n := len(dots)
+	met := make([]bool, n)
+
+	var a, b Dot
+	found := false
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			if i == j {
+				continue
+			}
+			if CheckAllDotsAreRightFromLineAB(dots[i], dots[j], dots) {
+				a = dots[i]
+				b = dots[j]
+
+				met[i] = true
+				met[j] = true
+
+				found = true
+				break
+			}
+		}
+		if found {
+			break
+		}
+	}
+	if !found {
+		panic("don't found line ab")
+	}
+	output := make([]Dot, 2)
+	output[0] = a
+	output[1] = b
+
+	for {
+		found := false
+		for i, d := range dots {
+			if met[i] {
+				continue
+			}
+			if CheckAllDotsAreRightFromLineAB(output[len(output)-1], d, dots) {
+				output = append(output, d)
+				met[i] = true
+				found = true
+				break
+			}
+		}
+		if !found {
+			break
+		}
+	}
+	// fmt.Println(output)
+	return *NewPolygon(output)
+}
+
+func CCHDivideAndConquer(dots []Dot) Polygon {
+	ROUTINES := 16
+	FUNC := CCHGrahamAndrew
+
+	dotSets := make([][]Dot, ROUTINES)
+	for i := 0; i < ROUTINES; i++ {
+		dotSets[i] = make([]Dot, 0)
+	}
+	for i, d := range dots {
+		dotSets[i%ROUTINES] = append(dotSets[i%ROUTINES], d)
+	}
+
+	hulls := make([]Polygon, ROUTINES)
+	wg := &sync.WaitGroup{}
+	wg.Add(ROUTINES)
+	for i := range hulls {
+		go func(i int, wg *sync.WaitGroup) {
+			hulls[i] = FUNC(dotSets[i])
+			if len(hulls[i]) != 0 {
+				hulls[i] = hulls[i][:len(hulls[i])-1]
+			}
+			wg.Done()
+		}(i, wg)
+	}
+	wg.Wait()
+
+	unity := make([]Dot, 0)
+	for i := range hulls {
+		for j := range hulls[i] {
+			d := hulls[i][j]
+			check := false
+			for k := range unity {
+				if unity[k] == d {
+					check = true
+					break
+				}
+			}
+			if !check {
+				unity = append(unity, d)
+			}
+		}
+	}
+
+	output := FUNC(unity)
+	output = output[:len(output)-1]
+
+	return *NewPolygon(output)
 }

@@ -153,7 +153,7 @@ func Lab2() {
 }
 
 func Task10() {
-	p := *NewPolygon([]Dot{{0, 0}, {5, 3}, {9, 2}, {12, -4}, {5, -7}, {7, -2}, {9, -9}, {1, -11}, {-2, -5}})
+	p := *NewPolygon([]Dot{{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 10}, {5, 5}})
 	simple := p.IsSimple()
 
 	fmt.Println("Task 1")
@@ -166,7 +166,7 @@ func Task10() {
 }
 
 func Task11() {
-	p := *NewPolygon([]Dot{{0, 0}, {-2, 4}, {0, 7}, {4, 7}, {2, 4}, {6, 1}})
+	p := *NewPolygon([]Dot{{0, 0}, {10, 0}, {10, 10}, {5,5}, {0, 10}})
 	area, err := p.Area()
 
 	fmt.Println("Task 2")
@@ -179,7 +179,7 @@ func Task11() {
 }
 
 func Task12() {
-	p := *NewPolygon([]Dot{{0, 0}, {4, 3}, {7, -1}, {5, -5}, {2, -3}})
+	p := *NewPolygon([]Dot{{0, 0}, {10, 0}, {10, 10}, {5,8}, {0, 2}})
 	simple := p.IsConvex()
 
 	fmt.Println("Task 3")
@@ -197,22 +197,88 @@ func Lab3() {
 	Task12()
 }
 
+func Task13() {
+	dots := []Dot{
+		{X: 0, Y: 0},
+		{X: 10, Y: 0},
+		{X: 5, Y: 10},
+		{X: 5, Y: 5},
+	}
+	hull := CCHGrahamAndrew(dots)
+
+	dotsStr := fmt.Sprint(dots)
+	dotsStr = dotsStr[1:len(dotsStr)-1]
+	fmt.Println("GRAHAM ANDREW ALGORITHM")
+	fmt.Println("All dots:", dotsStr)
+	fmt.Println("Hull:", hull)
+}
+
+func Task14() {
+	dots := []Dot{
+		{X: 0, Y: 0},
+		{X: 2, Y: 0},
+		{X: 3, Y: 1},
+		{X: 5, Y: 0},
+		{X: 1, Y: -2},
+		{X: 3, Y: -2},
+		{X: 5, Y: -2},
+		{X: 6, Y: 2},
+		{X: 6, Y: 5},
+	}
+	hull := CCHJarvis(dots)
+
+	dotsStr := fmt.Sprint(dots)
+	dotsStr = dotsStr[1:len(dotsStr)-1] 
+	fmt.Println("JARVIS ALGORITHM")
+	fmt.Println("All dots:", dotsStr)
+	fmt.Println("Hull:", hull)
+}
+
+func Task15() {
+	dots := []Dot{
+		{X: 0, Y: 0},
+		{X: 2, Y: 0},
+		{X: 3, Y: 1},
+		{X: 5, Y: 0},
+		{X: 1, Y: -2},
+		{X: 3, Y: -2},
+		{X: 5, Y: -2},
+		{X: 6, Y: 2},
+		{X: 6, Y: 5},
+	}
+	hull := CCHJarvis(dots)
+
+	dotsStr := fmt.Sprint(dots)
+	dotsStr = dotsStr[1:len(dotsStr)-1] 
+	fmt.Println("DIVIDE AND CONQUER ALGORITHM")
+	fmt.Println("All dots:", dotsStr)
+	fmt.Println("Hull:", hull)
+}
+
+func Lab4() {
+	Task13()
+	Task14()
+	Task15()
+}
+
 func main() {
 	// Lab1()
 	// Lab2()
 	// Lab3()
-	p1 := Dot{X: 1, Y: 0}
-	p2 := Dot{X: 3, Y: 0}
-	p3 := Dot{X: 2, Y: 0}
-	p4 := Dot{X: 8, Y: 2}
-	p5 := Dot{X: 15, Y: 9}
+	Lab4()
 
-	a1 := SignedDoubleTriangleArea(p1, p2, p3)
-	a2 := SignedDoubleTriangleArea(p1, p2, p4)
-	a3 := SignedDoubleTriangleArea(p1, p2, p5)
+	// p1 := Dot{X: -1, Y: -5}
+	// p2 := Dot{X: 0, Y: 0}
+	// p3 := Dot{X: 6, Y: 1}
+	// p4 := Dot{X: 1, Y: 5}
+	// p5 := Dot{X: -5, Y: 4}
 
-	fmt.Println("a1:", a1)
-	fmt.Println("a2:", a2)
-	fmt.Println("a3:", a3)
+	// a1 := SignedDoubleTriangleArea(p1, p2, p3)
+	// a2 := SignedDoubleTriangleArea(p1, p2, p4)
+	// a3 := SignedDoubleTriangleArea(p1, p2, p5)
+
+	// fmt.Println("a1:", a1)
+	// fmt.Println("a2:", a2)
+	// fmt.Println("a3:", a3)
 
 }
